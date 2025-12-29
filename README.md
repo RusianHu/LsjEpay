@@ -1,5 +1,7 @@
 # 彩虹易支付系统
 
+> Fork: [maajiko/Epay](https://github.com/maajiko/Epay) → [RusianHu/LsjEpay](https://github.com/RusianHu/LsjEpay)
+
 **彩虹易支付系统** 由郑州追梦网络科技有限公司开发，是一款开源的免签约支付产品，能够帮助开发者一站式接入支付宝、微信、财付通、QQ钱包等多种支付方式，实现高效的支付集成。
 
 ---
