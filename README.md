@@ -4,6 +4,40 @@
 
 ---
 
+## 从 GitHub 部署到运行
+
+### 1. 获取代码
+
+```bash
+git clone https://github.com/RusianHu/LsjEpay.git
+cd LsjEpay
+```
+
+### 2. 准备运行环境
+
+- PHP >= 7.4（推荐 8.2+） 启用扩展：`curl`, `fileinfo`, `gd`, `mbstring`, `mysqli`, `openssl`, `pdo_mysql`, `pdo_sqlite`, `sqlite3`
+- MySQL >= 5.6
+
+### 3. 配置数据库
+
+方式 A（推荐）：启动服务后访问安装向导填写数据库信息。
+
+方式 B（手动）：编辑 `config.php`，填入数据库连接信息。
+
+### 4. 启动服务
+
+```powershell
+.\php\php.exe -S localhost:8000 -t .
+```
+
+### 5. 安装/升级
+
+- 新装：访问 `http://localhost:8000/install/` 并完成安装。
+- 升级：访问 `http://localhost:8000/install/update.php`。
+- 安装完成后确保 `install/install.lock` 存在（用于防止重复安装）。
+
+---
+
 ## 功能特色
 
 - **多渠道支付集成**：支持支付宝、微信、财付通、QQ钱包、微信WAP、银联等多种支付方式  
@@ -37,16 +71,6 @@
 
 ---
 
-## 打赏二维码
-
-如果你觉得对你有帮助，欢迎打赏支持 ❤️
-
-### 微信打赏
-<img src="https://cdn.nodeimage.com/i/kgpolIW90QcsVO85dhO0li6ZDj40KttH.webp" width="180" />
-
-
----
-
 ## 推荐插件
 
 推荐使用 **Bepusdt** 插件进行 USDT（TRC20）收款。  
@@ -56,4 +80,3 @@ Bepusdt 是适用于彩虹易支付系统的 USDT 收款插件，收到的货币
 🔗 [https://github.com/v03413/bepusdt](https://github.com/v03413/bepusdt)
 
 ---
-
