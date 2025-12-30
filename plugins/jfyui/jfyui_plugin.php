@@ -159,25 +159,43 @@ class jfyui_plugin {
 	// 状态监控-计划任务版
 	public static function btjk($payid, array $channel, $OrderId) {
 		global $DB;
+		if (empty($OrderId)) {
+			return $payid . "查单出错 payOrderNo为空";
+		}
 		$headers = ['User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36'];
 		if (isset($channel['appsecret']) && !empty($channel['appsecret'])) {
 			$headers[] = 'X-FORWARDED-FOR: ' . $channel['appsecret'];
 			$headers[] = 'CLIENT-IP: ' . $channel['appsecret'];
 		}
+		$merchantNo = $channel['appkey'] ?? '';
+		$channelId = "95";
 		$confirmResponse = self::curlRequest(
 		    'https://payment.lakala.com/m/ccss/counter/order/query',
 		    'POST',
 		    $headers,
 		    [
 		    "reqTime" => date('YmdHis'), "version" => "1.0", "reqData" => [
-		    "channelId" => "95",
+		    "channelId" => $channelId,
 		    "payOrderNo" => $OrderId,
-		    "merchantNo" => $channel['appkey']
+		    "merchantNo" => $merchantNo
 		    ]
 		    ]
 		);
 		if (empty($confirmResponse['code']) || $confirmResponse['code'] != 000000) {
-			return $payid."查单出错";
+			$err = ' payOrderNo=' . $OrderId . ' merchantNo=' . $merchantNo . ' channelId=' . $channelId;
+			if (isset($confirmResponse['_error']) && $confirmResponse['_error'] !== '') {
+				$err = ' error=' . $confirmResponse['_error'];
+			} elseif (isset($confirmResponse['message'])) {
+				$err = ' message=' . $confirmResponse['message'];
+			} elseif (isset($confirmResponse['msg'])) {
+				$err = ' msg=' . $confirmResponse['msg'];
+			} elseif (isset($confirmResponse['code'])) {
+				$err = ' code=' . $confirmResponse['code'];
+			}
+			if (isset($confirmResponse['_raw']) && $confirmResponse['_raw'] !== '') {
+				$err .= ' raw=' . $confirmResponse['_raw'];
+			}
+			return $payid."查单出错".$err;
 		}elseif($confirmResponse['respData']['orderStatus'] != 2){
 		return $payid."订单还未支付";
 		}		
@@ -219,7 +237,24 @@ class jfyui_plugin {
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		$response = curl_exec($ch);
+		$curlErr = '';
+		$curlErrNo = 0;
+		if ($response === false) {
+			$curlErr = curl_error($ch);
+			$curlErrNo = curl_errno($ch);
+		}
 		curl_close($ch);
-		return json_decode($response, true);
+		if ($response === false) {
+			return ['_error' => $curlErr, '_errno' => $curlErrNo, '_raw' => ''];
+		}
+		$decoded = json_decode($response, true);
+		if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
+			return ['_error' => 'json_decode: ' . json_last_error_msg(), '_raw' => $response];
+		}
+		if (is_array($decoded)) {
+			$decoded['_raw'] = $response;
+			return $decoded;
+		}
+		return ['_raw' => $response];
 	}
 }

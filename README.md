@@ -38,6 +38,11 @@ cd LsjEpay
 - 升级：访问 `http://localhost:8000/install/update.php`。
 - 安装完成后确保 `install/install.lock` 存在（用于防止重复安装）。
 
+### 6. Nginx 伪静态（可选但推荐）
+
+不配置会导致短路径（如 `/pay/...`、`/api/...`、`/doc/...`、`/xxx.html`）404，只能用 `index.php?mod=...` 等原始参数地址访问。  
+将 `nginx.txt` 的内容加入对应站点的 `server` 配置即可。
+
 ---
 
 ## 功能特色
