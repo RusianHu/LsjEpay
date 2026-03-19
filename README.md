@@ -22,9 +22,36 @@ cd LsjEpay
 
 ### 3. 配置数据库
 
+> [!IMPORTANT]
+> 项目运行时 **实际读取的是根目录 `config.php`**，**不会自动读取 `config.php.example`**。
+> `config.php.example` 只是数据库配置模板，需要复制为 `config.php` 后再使用。
+
 方式 A（推荐）：启动服务后访问安装向导填写数据库信息。
 
-方式 B（手动）：编辑 `config.php`，填入数据库连接信息。
+- 安装入口：`http://localhost:8000/install/`
+- 如果项目根目录有写入权限，安装器会自动生成 `config.php`
+
+方式 B（手动）：先复制模板，再编辑根目录 `config.php`。
+
+```powershell
+Copy-Item .\config.php.example .\config.php
+```
+
+`config.php` 中需要正确填写以下字段：
+
+- `host`：数据库地址
+- `port`：数据库端口，默认一般为 `3306`
+- `user`：数据库用户名
+- `pwd`：数据库密码
+- `dbname`：数据库名称
+- `dbqz`：数据表前缀，默认是 `pay`
+
+常见问题：
+
+- **只保留 `config.php.example`，没有创建 `config.php`**：程序仍然会报数据库配置相关错误
+- **数据库用户名、密码、数据库名为空**：安装器不会继续安装
+- **项目根目录不可写**：安装器可能无法保存配置文件，需要手动创建 `config.php`
+- **修改了表前缀**：请确保安装和后续使用时保持一致，否则可能出现数据表不存在的问题
 
 ### 4. 启动服务
 
