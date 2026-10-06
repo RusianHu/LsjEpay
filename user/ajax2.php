@@ -480,7 +480,7 @@ case 'edit_pwd':
 	if(!empty($userrow['pwd']) && $oldpwd==null || $newpwd==null || $newpwd2==null){
 		exit('{"code":-1,"msg":"请确保每项都不为空"}');
 	}
-	if(!empty($userrow['pwd']) && getMd5Pwd($oldpwd, $uid)!=$userrow['pwd']){
+	if(!empty($userrow['pwd']) && !hash_equals((string)$userrow['pwd'], getMd5Pwd($oldpwd, $uid))){
 		exit('{"code":-1,"msg":"旧密码不正确"}');
 	}
 	if($newpwd!=$newpwd2){
@@ -1200,7 +1200,7 @@ case 'refund_submit': //确认退款
 	$pwd=trim($_POST['pwd']);
 	$money = trim($_POST['money']);
 	if(!is_numeric($money) || !preg_match('/^[0-9.]+$/', $money))exit('{"code":-1,"msg":"金额输入错误"}');
-	if(getMd5Pwd($pwd, $userrow['uid'])!=$userrow['pwd'])
+	if(!hash_equals((string)$userrow['pwd'], getMd5Pwd($pwd, $userrow['uid'])))
 		exit('{"code":-1,"msg":"登录密码输入错误！"}');
 	
 	$refund_no = date("YmdHis").rand(11111,99999);

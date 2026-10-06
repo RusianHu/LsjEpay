@@ -66,6 +66,41 @@ $_POST = ["pid" => "999", "trade_no" => "FIXTURE_NO_ORDER"];
         }
     }
 
+    // Execute the actual login handlers with inert data and side-effect stubs.
+    foreach (['admin/login.php', 'user/ajax.php'] as $loginFile) {
+        $login = str_replace('include("../includes/common.php");', '// Isolated bootstrap.',
+            file_get_contents($root . '/' . $loginFile), $replacements);
+        if ($replacements !== 1) throw new RuntimeException('Login bootstrap changed; review fixture');
+        foreach (['0e123456', '00'] as $password) {
+            $bootstrap = '<?php
+error_reporting(0);
+ob_start();
+define("SYS_KEY", "FIXTURE_LOGIN_KEY");
+function daddslashes($value) { return $value; }
+function checkRefererHost() { return true; }
+function get_ip_city($ip) { return "fixture-city"; }
+function authcode($value, $operation, $key) { return "FIXTURE_TOKEN"; }
+class LoginDatabaseFixture {
+ public function getColumn($sql, $args = []) { return 0; }
+ public function getRow($sql, $args = []) { return ["uid"=>"999","key"=>"00","pwd"=>"fixture","keylogin"=>1,"account"=>"fixture","username"=>"fixture"]; }
+ public function insert($table, $data) { return 1; }
+ public function exec($sql) { return 1; }
+}
+$DB = new LoginDatabaseFixture();
+$conf = ["admin_user"=>"fixture-admin","admin_pwd"=>"00","captcha_open_login"=>0,"close_keylogin"=>0];
+$password_hash = "fixture";
+$clientip = "127.0.0.1";
+$_SESSION = ["vc_code"=>"fixture","wxnotice_login_uid"=>"999"];
+$_GET = ["act"=>"login"];
+$_POST = ["username"=>"fixture-admin","password"=>' . var_export($password, true)
+                . ',"user"=>"999","pass"=>' . var_export($password, true) . ',"type"=>"0","code"=>"fixture"];
+?>';
+            $response = json_decode(isolatedPhp($bootstrap . $login), true);
+            checkBoundary(is_array($response) && $response['code'] === ($password === '00' ? 0 : -1),
+                $loginFile . ' uses exact password/key comparison');
+        }
+    }
+
     // Exercise all return states, including OpenSSL's truthy error value -1.
     $adapters = [
         ['plugins/adapay/inc/Build.class.php', 'AdaTools', 'rsaPublicKey'],

@@ -14,7 +14,7 @@
 | --- | --- |
 | getshop.php | 公网缺少验证码的请求同时得到失败与成功两段 JSON，仍发通行凭证；修补后失败立即终止，隔离执行真实处理器验证失败、空结果和非布尔结果都不发凭证 |
 | AdaPay、随行付、富友、联动优势 | 验签错误 -1 可被当成真值；改为仅接受整数 1，并严格解析签名；验证全部 OpenSSL 返回状态及真实 RSA 正常、篡改、畸形签名 |
-| includes/member.php、includes/functions.php | 宽松登录摘要与令牌 MAC 比较改为精确、定时安全比较，验证用户名和令牌结构，正常旧格式仍可使用 |
+| admin/login.php、user/ajax.php、user/ajax2.php、includes/member.php、includes/functions.php | 登录密码、商户密钥、敏感操作密码、登录摘要与令牌 MAC 改为精确、定时安全比较；执行真实登录处理器确认数值形式不同的密码或密钥不能互相替代，正常旧格式令牌仍可使用 |
 | random() | 密钥和验证码改用 random_int，保留调用方式、长度及字符集 |
 | PayPal webhook | 证书地址只允许官方 API 的 HTTPS 证书路径和 443 端口；拒绝其他主机、协议、用户信息、查询串和片段；开启 TLS，禁止重定向 |
 | 配置缓存 | 禁止实例化序列化类，保留正常数组；验证不会调用对象 __wakeup |

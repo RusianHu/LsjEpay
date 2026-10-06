@@ -34,7 +34,7 @@ if(isset($_GET['act']) && $_GET['act']=='login'){
     }
     $password = $plain;
   }
-  if($username == $conf['admin_user'] && $password == $conf['admin_pwd']){
+  if($username === $conf['admin_user'] && hash_equals((string)$conf['admin_pwd'], $password)){
     $DB->insert('log', ['uid'=>0, 'type'=>'登录后台', 'date'=>'NOW()', 'ip'=>$clientip]);
 		$session=md5($username.$password.$password_hash);
 		$expiretime=time() + 2592000;

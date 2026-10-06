@@ -76,7 +76,7 @@ case 'login':
 			exit('{"code":-1,"msg":"该商户未开启密钥登录，请使用账号密码登录！"}');
 		}
 	}
-	if($userrow && ($type==0 && $pass==$userrow['key'] || $type==1 && $pass==$userrow['pwd'])) {
+	if($userrow && ($type==0 && hash_equals((string)$userrow['key'], $pass) || $type==1 && hash_equals((string)$userrow['pwd'], $pass))) {
 		$uid = $userrow['uid'];
 		if($alipay_uid=$_SESSION['Oauth_alipay_uid']){
 			$DB->update('user', ['alipay_uid'=>$alipay_uid], ['uid'=>$uid]);
