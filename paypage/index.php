@@ -252,7 +252,7 @@ $_SESSION['paypage_token'] = $csrf_token;
 <script src="//open.mobile.qq.com/sdk/qqapi.js?_bid=152"></script>
 <script src="js/hammer.js"></script>
 <script src="js/common.js"></script>
-<script src="js/pay.js?v=1005"></script>
+<script src="js/pay.js?v=1006"></script>
 <script>
 	document.body.addEventListener('touchmove', function (event) {
 		event.preventDefault();
