@@ -70,6 +70,26 @@ Copy-Item .\config.php.example .\config.php
 不配置会导致短路径（如 `/pay/...`、`/api/...`、`/doc/...`、`/xxx.html`）404，只能用 `index.php?mod=...` 等原始参数地址访问。  
 将 `nginx.txt` 的内容加入对应站点的 `server` 配置即可。
 
+### 7. 安全检查与部署
+
+本 fork 已移除上游 Composer 自动加载文件中通过 `PHP-Version` 请求头泄露系统密钥的异常代码。不要直接覆盖或合并未经审查的上游 `includes/vendor/composer/` 文件。
+
+更新前后运行 HTTP 回归检查；它使用隔离的本机服务器和虚构密钥，不连接业务数据库：
+
+```bash
+php tests/security-autoload.php
+```
+
+GitHub Actions 会在 PHP 7.4、8.2 和 8.4 上运行该检查。Nginx 站点应在 PHP `location` 之前引用本仓库的额外防护配置，并通过 `nginx -t` 后再重新加载：
+
+```nginx
+include /实际部署目录/deploy/nginx-security.conf;
+```
+
+该配置拒绝异常 `PHP-Version` 请求头，并限制配置、源码备份、调试日志和测试目录的公网访问。网站根目录不应保存 ZIP、SQL 或其他备份文件。
+
+已部署过受影响版本的站点必须在修补后使用安全随机数更换配置表中的 `syskey`，同时刷新配置缓存。更换系统密钥会使旧登录令牌以及依赖旧密钥的码牌、红包等链接失效，需要重新登录或重新生成；不能继续接受已泄露的旧密钥。更新时保留现有数据库配置和安装锁，备份必须存放在网站目录之外。
+
 ---
 
 ## 功能特色
