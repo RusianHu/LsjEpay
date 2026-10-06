@@ -25,8 +25,8 @@ $conf = ["syskey" => ' . $dummy . '];
 define("SYS_KEY", $conf["syskey"]);
 session_start();
 $loader = require ' . $autoload . ';
-header("Content-Type: application/json");
-echo json_encode(["loader" => get_class($loader), "sdk" => class_exists("Alipay\\\\AlipayService")]);
+header("Content-Type: text/plain");
+echo get_class($loader) . "\n" . (class_exists("Alipay\\\\AlipayService") ? "sdk-loaded" : "sdk-missing");
 ';
     file_put_contents($temporary . '/index.php', $fixture);
 
@@ -37,7 +37,7 @@ echo json_encode(["loader" => get_class($loader), "sdk" => class_exists("Alipay\
     $address = stream_socket_get_name($listener, false);
     fclose($listener);
     $process = proc_open([
-        PHP_BINARY, '-n', '-d', 'display_errors=0', '-d', 'log_errors=0',
+        PHP_BINARY, '-n', '-d', 'display_errors=0', '-d', 'log_errors=1',
         '-d', 'session.save_path=' . $temporary, '-S', $address, '-t', $temporary,
     ], [0 => ['pipe', 'r'], 1 => ['file', $temporary . '/server.log', 'a'],
         2 => ['file', $temporary . '/server.log', 'a']], $pipes, $root);
@@ -75,10 +75,8 @@ echo json_encode(["loader" => get_class($loader), "sdk" => class_exists("Alipay\
         if (strpos(implode("\n", $headers) . $body, $secret) !== false) {
             throw new RuntimeException('Secret leaked for ' . ($header ?: 'ordinary request'));
         }
-        $decoded = json_decode($body, true);
         if (!$headers || !preg_match('/^HTTP\/\S+ 200\b/', $headers[0])
-            || !is_array($decoded) || $decoded['loader'] !== 'Composer\\Autoload\\ClassLoader'
-            || empty($decoded['sdk'])) {
+            || $body !== "Composer\\Autoload\\ClassLoader\nsdk-loaded") {
             throw new RuntimeException('Autoload or SDK smoke check failed for ' . ($header ?: 'ordinary request'));
         }
         $sessionCookie = false;
