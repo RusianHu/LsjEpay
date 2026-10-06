@@ -172,12 +172,15 @@ class UmfService
 
 	//平台公钥验签
 	private function rsaPubilcVerify($data, $signature){
+		if (!is_string($signature) || ($signatureBytes = base64_decode($signature, true)) === false || $signatureBytes === '') {
+			return false;
+		}
 		$pubkeyid = openssl_get_publickey($this->platform_public_key);
 		if(!$pubkeyid){
 			throw new Exception('验签失败，平台公钥不正确');
 		}
-		$result = openssl_verify($data, base64_decode($signature), $pubkeyid);
-		return $result;
+		$result = openssl_verify($data, $signatureBytes, $pubkeyid);
+		return $result === 1;
 	}
 
 	//平台公钥加密

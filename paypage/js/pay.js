@@ -133,7 +133,7 @@ function submitFun(){
 
 //region WX JS
 function WxpayJsPay(payStr){
-    var jsonPayStr = eval("("+payStr+")");
+    var jsonPayStr = typeof payStr === "string" ? JSON.parse(payStr) : payStr;
     WeixinJSBridge.invoke(
         'getBrandWCPayRequest',
         jsonPayStr,
@@ -194,7 +194,7 @@ function Alipayready(callback) {
 //region QQ JS
 function QQJsPay(payStr){
 	var trade_no = $("#trade_no").val();
-	var jsonPayStr = eval("("+payStr+")");
+	var jsonPayStr = typeof payStr === "string" ? JSON.parse(payStr) : payStr;
 	mqq.tenpay.pay({
 		tokenId: jsonPayStr.tokenId,
 		appInfo: jsonPayStr.appInfo

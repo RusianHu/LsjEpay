@@ -27,3 +27,6 @@ jobs:
           php-version: ${{ matrix.php }}
           coverage: none
       - run: php tests/security-autoload.php
+      - run: php tests/security-source.php
+      - run: php tests/security-boundaries.php
+      - run: node tests/security-pay-json.js

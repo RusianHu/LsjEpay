@@ -93,6 +93,9 @@ class Suixingpay
 
 	//平台公钥验签
 	private function rsaPubilcSign($data, $sign){
+		if (!is_string($sign) || ($signatureBytes = base64_decode($sign, true)) === false || $signatureBytes === '') {
+			return false;
+		}
 		$key = "-----BEGIN PUBLIC KEY-----\n" .
             wordwrap($this->platform_public_key, 64, "\n", true) .
             "\n-----END PUBLIC KEY-----";
@@ -100,8 +103,8 @@ class Suixingpay
 		if(!$res){
 			throw new Exception('验签失败，平台公钥错误');
 		}
-		$result = openssl_verify($data, base64_decode($sign), $res);
-		return $result;
+		$result = openssl_verify($data, $signatureBytes, $res);
+		return $result === 1;
 	}
 
 	private function getMillisecond()

@@ -37,6 +37,9 @@ Class AdaTools
 	
 	public function verifySign($signature , $data)
 	{
+		if (!is_string($signature) || ($signatureBytes = base64_decode($signature, true)) === false || $signatureBytes === '') {
+			return false;
+		}
 		if ($this->checkEmpty($this->rsaPublicKeyFilePath)) {
 			$pubKey = trim($this->rsaPublicKey);
 			$key = "-----BEGIN PUBLIC KEY-----\n" . wordwrap($pubKey, 64, "\n", true) . "\n-----END PUBLIC KEY-----";
@@ -44,7 +47,7 @@ Class AdaTools
 			$pubKey = file_get_contents($this->rsaPublicKeyFilePath);
 			$key = openssl_get_publickey($pubKey);
 		}
-		if (openssl_verify($data , base64_decode($signature) , $key , OPENSSL_ALGO_SHA1)) {
+		if (openssl_verify($data , $signatureBytes , $key , OPENSSL_ALGO_SHA1) === 1) {
 			return true;
 		}
 		return false;

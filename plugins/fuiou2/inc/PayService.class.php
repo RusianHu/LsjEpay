@@ -115,6 +115,9 @@ class PayService
 
 	//平台公钥验签
 	private function rsaPubilcSign($data, $signature){
+		if (!is_string($signature) || ($signatureBytes = base64_decode($signature, true)) === false || $signatureBytes === '') {
+			return false;
+		}
 		$pubKey = str_replace(array("\r\n", "\r", "\n"), "", $this->platform_public_key);
         $res = "-----BEGIN PUBLIC KEY-----\n" .
             wordwrap($pubKey, 64, "\n", true) .
@@ -123,8 +126,8 @@ class PayService
 		if(!$pubkeyid){
 			throw new Exception('验签失败，富友公钥不正确');
 		}
-		$result = openssl_verify($data, base64_decode($signature), $pubkeyid, OPENSSL_ALGO_MD5);
-		return $result;
+		$result = openssl_verify($data, $signatureBytes, $pubkeyid, OPENSSL_ALGO_MD5);
+		return $result === 1;
 	}
 
 	private function toXml($data, $eIsArray=FALSE) {

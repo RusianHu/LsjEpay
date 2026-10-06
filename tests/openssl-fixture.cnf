@@ -1,0 +1,7 @@
+[req]
+default_bits = 2048
+distinguished_name = fixture_dn
+prompt = no
+
+[fixture_dn]
+CN = isolated-security-fixture.invalid

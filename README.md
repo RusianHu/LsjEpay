@@ -82,6 +82,8 @@ php tests/security-autoload.php
 
 GitHub Actions 会在 PHP 7.4、8.2 和 8.4 上运行该检查。Nginx 站点应在 PHP `location` 之前引用本仓库的额外防护配置，并通过 `nginx -t` 后再重新加载：
 
+扩散审查结果、依赖完整性清单与其他回归检查见 [SECURITY.md](SECURITY.md)。发布前还应运行源代码、安全边界和客户端支付 JSON 检查，检查失败时不要覆盖生产代码。
+
 ```nginx
 include /实际部署目录/deploy/nginx-security.conf;
 ```

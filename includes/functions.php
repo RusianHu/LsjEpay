@@ -316,7 +316,7 @@ function authcode($string, $operation = 'DECODE', $key = '', $expiry = 0) {
 		$result .= chr(ord($string[$i]) ^ ($box[($box[$a] + $box[$j]) % 256]));
 	}
 	if($operation == 'DECODE') {
-		if(((int)substr($result, 0, 10) == 0 || (int)substr($result, 0, 10) - time() > 0) && substr($result, 10, 16) == substr(md5(substr($result, 26).$keyb), 0, 16)) {
+		if(((int)substr($result, 0, 10) == 0 || (int)substr($result, 0, 10) - time() > 0) && hash_equals(substr(md5(substr($result, 26).$keyb), 0, 16), substr($result, 10, 16))) {
 			return substr($result, 26);
 		} else {
 			return '';
@@ -327,12 +327,11 @@ function authcode($string, $operation = 'DECODE', $key = '', $expiry = 0) {
 }
 
 function random($length, $numeric = 0) {
-	$seed = base_convert(md5(microtime().$_SERVER['DOCUMENT_ROOT']), 16, $numeric ? 10 : 35);
-	$seed = $numeric ? (str_replace('0', '', $seed).'012340567890') : ($seed.'zZ'.strtoupper($seed));
+	$seed = $numeric ? '0123456789' : '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 	$hash = '';
 	$max = strlen($seed) - 1;
 	for($i = 0; $i < $length; $i++) {
-		$hash .= $seed[mt_rand(0, $max)];
+		$hash .= $seed[random_int(0, $max)];
 	}
 	return $hash;
 }

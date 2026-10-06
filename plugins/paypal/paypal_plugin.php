@@ -175,11 +175,19 @@ class paypal_plugin
         }
         $sign_string = $_SERVER['HTTP_PAYPAL_TRANSMISSION_ID'].'|'.$_SERVER['HTTP_PAYPAL_TRANSMISSION_TIME'].'|'.$channel['appsecret'].'|'.$crc32;
 
-        // 通过PAYPAL-CERT-URL头信息去拿公钥
-        $public_key = openssl_pkey_get_public(get_curl($_SERVER['HTTP_PAYPAL_CERT_URL']));
-        $details = openssl_pkey_get_details($public_key);
-        $verify = openssl_verify($sign_string, base64_decode($_SERVER['HTTP_PAYPAL_TRANSMISSION_SIG']), $details['key'], 'SHA256');
-        if($verify != 1)
+        require_once PAY_ROOT.'inc/WebhookCertificate.php';
+        try {
+            $certificate = PayPalWebhookCertificate::download($_SERVER['HTTP_PAYPAL_CERT_URL'] ?? '');
+        } catch (Exception $e) {
+            exit('签名验证失败');
+        }
+        $public_key = openssl_pkey_get_public($certificate);
+        $signature = base64_decode($_SERVER['HTTP_PAYPAL_TRANSMISSION_SIG'] ?? '', true);
+        if (!$public_key || $signature === false || $signature === '') {
+            exit('签名验证失败');
+        }
+        $verify = openssl_verify($sign_string, $signature, $public_key, 'SHA256');
+        if($verify !== 1)
         {
 			exit('签名验证失败');
         }
